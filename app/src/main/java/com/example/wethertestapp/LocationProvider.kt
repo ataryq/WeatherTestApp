@@ -44,6 +44,10 @@ class LocationProvider(private val mActivity: MainActivity): LocationListener {
         }
     }
 
+    public fun isLocationOn(): Boolean {
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
     @SuppressLint("MissingPermission")
     public fun getLastLocation(): Location? {
         return mLocationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)

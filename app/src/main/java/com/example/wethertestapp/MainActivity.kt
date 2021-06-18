@@ -1,12 +1,15 @@
 package com.example.wethertestapp
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.example.wethertestapp.databinding.ActivityMainBinding
+import com.example.wethertestapp.databinding.AlertDialogBinding
 import com.example.wethertestapp.service.OpenWeatherMapApiHelper
 import com.example.wethertestapp.viewmodel.MainActivityViewModel
 
@@ -34,6 +37,21 @@ class MainActivity : AppCompatActivity() {
 
         initRefreshLayout()
         mViewModel.loadWeather()
+
+        mViewModel.getErrorHandler().observe(this, Observer {
+            if(it == 1)
+                showAlertDialog("Please turn on location")
+            else if(it == 2)
+                showAlertDialog("Please check internet connection")
+        })
+    }
+
+    private fun showAlertDialog(msg: String) {
+        AlertDialog.Builder(this)
+            .setMessage(msg)
+            .setTitle("Error!")
+            .setNegativeButton("CLOSE", null)
+            .create().show()
     }
 
     //Animated loading icon at the top

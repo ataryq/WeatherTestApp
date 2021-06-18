@@ -1,6 +1,7 @@
 package com.example.wethertestapp.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.wethertestapp.LocationProvider
 import com.example.wethertestapp.MainActivity
@@ -21,6 +22,7 @@ class MainActivityViewModel: ViewModel() {
     private lateinit var mLocationProvider: LocationProvider
     private lateinit var mApi: OpenWeatherMapApi
     private lateinit var mDb: WeatherDatabaseDao
+    private var mErrorHandler: MutableLiveData<Int> = MutableLiveData()
 
     public fun initialize(mainActivity: MainActivity) {
         mMainActivity = mainActivity
@@ -33,7 +35,15 @@ class MainActivityViewModel: ViewModel() {
         return mDb.getAll()
     }
 
+    public fun getErrorHandler(): MutableLiveData<Int> {
+        return mErrorHandler
+    }
+
     public fun loadWeather() {
+        if(!mLocationProvider.isLocationOn()) {
+            mErrorHandler.postValue(1)
+        }
+
         var lastLocation = mLocationProvider.getLastLocation()
         val request = mApi.getWeather(lastLocation?.latitude.toString(),
             lastLocation?.longitude.toString(),
@@ -65,11 +75,13 @@ class MainActivityViewModel: ViewModel() {
                 }
                 else {
                     println("myweather: problems " + response.message())
+                    mErrorHandler.postValue(2)
                 }
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                 println("onFailure: ")
+                mErrorHandler.postValue(2)
             }
         })
     }
